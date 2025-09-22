@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bright Shop - Gracias</title>
+  <link rel="icon" href="https://i.imgur.com/bhg0asr.png" type="image/png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.1rem;
+      background-color: #f8f9fa;
+      color: #333;
+      padding-top: 80px; /* espacio para header fijo */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: url('https://i.imgur.com/fQg4svI.jpeg') no-repeat center center;
+      background-size: cover;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background-color: #000000;
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-family: Geneva;
+    }
+    .cart-icon, .favorites-icon {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+    .cart-image, .favorites-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain; 
+    }
+    .cart-count{
+      position: absolute;
+      top: 55%;
+      left: 45%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .favorites-count {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .cart-count {
+      font-size: 20px;
+    }
+    .menu {
+      position: relative;
+    }
+    .menu-button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      position: relative;
+      z-index: 1000;
+      padding: 8px;
+    }
+    .dropdown {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh;
+      background: #222;
+      padding-top: 4rem;
+      z-index: 999;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform 0.3s ease;
+      transform: translateX(-100%);
+    }
+    .dropdown.show {
+      display: flex;
+      transform: translateX(0);
+    }
+    .dropdown a {
+      display: block;
+      color: #fff;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+    .dropdown a:hover {
+      background: #444;
+    }
+    /* Submenú embebido en el panel lateral */
+    .submenu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .has-submenu {
+      padding: 1rem 2rem;
+      text-decoration: none;
+      color: white;
+      cursor: default; /* opcional */
+    }
+
+    .submenu-content {
+      display: none;
+      flex-direction: column;
+      background-color: #111;
+    }
+
+    .submenu-content a {
+      padding-left: 3rem;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+
+    .submenu-content a:hover {
+      background-color: #444;
+    }
+
+    /* Mostrar submenú al hacer hover sobre la sección Botiga */
+    .submenu:hover .submenu-content {
+      display: flex;
+    }
+    .icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+    }
+    .header-favorite {
+      width: 24px;
+      height: 24px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .hero {
+      height: 100vh;
+      background: url('https://i.imgur.com/DLi3hbn.jpeg') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+      padding-top: 60px;
+      position: relative;
+    }
+
+    /* Estilo del contenedor de agradecimiento */
+    .thank-you-container {
+      background-color: rgba(255,255,255,0.7);
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+    .thank-you-container h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #000;
+    }
+    .thank-you-container p {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+    .thank-you-container a {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background-color: #000;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .thank-you-container a:hover {
+      background-color: #333;
+    }
+
+    @media (max-width: 600px) {
+      .thank-you-container h1 {
+        font-size: 1.6rem;
+      }
+      .thank-you-container p {
+        font-size: 1rem;
+      }
+      .thank-you-container a {
+        font-size: 0.9rem;
+        padding: 0.7rem 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="menu">
+      <button class="menu-button">☰</button>
+      <div class="dropdown">
+        <a href="index.html">Inici</a>
+        <div class="submenu">
+          <a href="Shop.html" class="has-submenu">Botiga</a>
+          <div class="submenu-content">
+            <a href="cataleg.html">Catàleg</a>
+            <a href="novetats.html">Novetats</a>
+          </div>
+          <a href="Sobre_nosaltres.html">Sobre nosaltres</a>
+          <a href="Contacte.html">Contacte</a>
+        </div>
+      </div>
+    </div>
+    <div>
+      <a href="Shop.html">
+        <img src="https://i.imgur.com/FDJV9Ct.png" width="200" alt="Logo">
+      </a>
+    </div>
+    <div class="icons">
+      <span class="icon favorites-icon" onclick="window.location.href='favoritos.html'">
+        <div class="header-favorite" id="headerFavorite" style="background-image: url('https://i.imgur.com/NvZb8Tu.png')"></div>
+        <span class="favorites-count">0</span>
+      </span>
+      <span class="icon cart-icon" onclick="window.location.href='cesta.html'">
+        <img src="https://i.imgur.com/bcpPSNz.png" alt="Carrito" class="cart-image">
+        <span class="cart-count">0</span>
+      </span>
+    </div>
+  </header>
+
+  <div class="thank-you-container">
+    <h1>¡Gracias por contactarnos!</h1>
+    <p>Hemos recibido tu mensaje correctamente y te responderemos lo antes posible.</p>
+    <a href="index.html">Volver al inicio</a>
+  </div>
+
+  <script>
+    // Actualizar contadores desde localStorage
+    document.addEventListener("DOMContentLoaded", function () {
+      const cart = JSON.parse(localStorage.getItem("brightShopCart") || "{}");
+      const favorites = JSON.parse(localStorage.getItem("brightShopFavorites") || "{}");
+
+      const cartCount = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+      const favCount = Object.keys(favorites).length;
+
+      const cartCountEl = document.querySelector(".cart-count");
+      const favCountEl = document.querySelector(".favorites-count");
+
+      if (cartCountEl) cartCountEl.textContent = cartCount;
+      if (favCountEl) favCountEl.textContent = favCount;
+    });
+
+    // Menú desplegable
+    const menuButton = document.querySelector('.menu-button');
+    const dropdown = document.querySelector('.dropdown');
+
+    menuButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+
+    window.addEventListener('click', (e) => {
+      if (!menuButton.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+  </script>
+</body>
+</html>
