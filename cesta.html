@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito de Compra - Bright Shop</title>
+  <link rel="icon" href="https://i.imgur.com/bhg0asr.png" type="image/png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.1rem;
+      background-color: white;
+      color: #000;
+      padding-top: 80px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background-color: #000000;
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-family: Geneva;
+    }
+
+    .cart-icon, .favorites-icon {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    .cart-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      filter: brightness(0) invert(1); /* Hace que el icono sea blanco */
+    }
+
+    /* CONTADOR MODIFICADO - Número blanco centrado */
+    .cart-count{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      pointer-events: none;
+      height: 20px;
+      width: 15px;
+    }
+    .favorites-count {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .menu {
+      position: relative;
+    }
+    .menu-button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      position: relative;
+      z-index: 1000;
+      padding: 8px;
+    }
+    .dropdown {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh;
+      background: #222;
+      padding-top: 4rem;
+      z-index: 999;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform 0.3s ease;
+      transform: translateX(-100%);
+    }
+    .dropdown.show {
+      display: flex;
+      transform: translateX(0);
+    }
+    .dropdown a {
+      display: block;
+      color: #fff;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+    .dropdown a:hover {
+      background: #444;
+    }
+    
+    /* Submenú embebido en el panel lateral */
+    .submenu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .has-submenu {
+      padding: 1rem 2rem;
+      text-decoration: none;
+      color: white;
+      cursor: default; /* opcional */
+    }
+
+    .submenu-content {
+      display: none;
+      flex-direction: column;
+      background-color: #111;
+    }
+
+    .submenu-content a {
+      padding-left: 3rem;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+
+    .submenu-content a:hover {
+      background-color: #444;
+    }
+
+    /* Mostrar submenú al hacer hover sobre la sección Botiga */
+    .submenu:hover .submenu-content {
+      display: flex;
+    }
+
+    .icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .icon { position: relative; cursor: pointer; }
+
+    .header-favorite {
+      width: 24px;
+      height: 24px;
+      background: url('https://i.imgur.com/NvZb8Tu.png') center/contain no-repeat;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+
+    .cart-container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .cart-empty {
+      text-align: center;
+      padding: 40px 0;
+      color: #666;
+    }
+
+    .cart-empty p {
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+
+    .continue-Shopping {
+      display: inline-block;
+      background: #000;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    .continue-Shopping:hover {
+      background: #333;
+    }
+
+    .cart-item {
+      display: flex;
+      border-bottom: 1px solid #eee;
+      padding: 20px 0;
+      align-items: center;
+    }
+
+    .cart-item-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      margin-right: 20px;
+      border: 1px solid #eee;
+    }
+
+    .cart-item-details {
+      flex-grow: 1;
+    }
+
+    .cart-item-name {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+
+    .cart-item-info {
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .cart-item-price {
+      font-weight: bold;
+    }
+
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+    }
+
+    .quantity-btn {
+      width: 30px;
+      height: 30px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .quantity-input {
+      width: 40px;
+      height: 30px;
+      text-align: center;
+      border: 1px solid #ddd;
+      margin: 0 5px;
+    }
+
+    .remove-btn {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .remove-btn:hover {
+      background: #cc0000;
+    }
+
+    .cart-summary {
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .summary-title {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+
+    .checkout-btn {
+      display: block;
+      width: 100%;
+      background: #000;
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 1.1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .checkout-btn:hover {
+      background: #333;
+    }
+
+    /* ---------- ALERTA ---------- */
+    .alert-message {
+        display: none;
+        position: fixed;
+        top: 90px; /* Justo debajo del header */
+        left: 10px;
+        right: 10px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.9); /* Blanco semitransparente */
+        color: #000;
+        border-radius: 5px;
+        z-index: 2000;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-size: 1rem;
+      }
+
+    /* MEJORAS ESPECÍFICAS PARA EL ICONO DE LA CESTA */
+    .cart-icon {
+      /* Asegurar que sea fácil de tocar en móviles */
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .cart-icon:active .cart-image {
+      transform: scale(0.95); /* Feedback táctil */
+    }
+
+    @media (max-width: 900px) {
+      header img {
+        width: 150px !important;
+      }
+
+      .dropdown {
+        width: 200px;
+      }
+      
+      .cart-icon, .favorites-icon {
+        width: 38px;
+        height: 38px;
+      }
+      
+      .cart-count{
+        font-size: 18px;
+        width: 15px; 
+        height: 15px;
+      } 
+
+      .favorites-count {
+        font-size: 14px;
+      }
+      
+      .alert-message {
+        font-size: 0.95rem;
+        top: 80px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header img {
+        width: 120px !important;
+      }
+
+      .icons {
+        gap: 0.5rem;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+      
+      .page-title {
+        font-size: 1.5rem;
+      }
+      
+      .cart-container {
+        padding: 15px;
+      }
+      
+      .cart-item-image {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .cart-item-name {
+        font-size: 1.1rem;
+      }
+      
+      .alert-message {
+        font-size: 0.9rem;
+        padding: 12px;
+        top: 80px;
+      }
+      
+      /* MEJORAS ESPECÍFICAS PARA MÓVILES */
+      .cart-icon {
+        min-width: 40px;
+        min-height: 40px;
+      }
+      
+      .cart-count {
+        font-size: 18px;
+        height: 15px;
+        width: 14px;
+      }
+
+      /* 🔥 NUEVO: mostrar controles del carrito en una nueva línea solo en móvil */
+      .cart-item {
+        flex-wrap: wrap; /* Permitir salto de línea */
+      }
+
+      .cart-item-controls {
+        flex-basis: 100%; /* Ocupa toda la línea */
+        justify-content: space-between; /* Espacio entre botones */
+        margin-top: 10px;
+      }
+
+      .quantity-controls {
+        margin-right: 0; /* Quitar margen derecho en móvil */
+      }
+      .submenu:hover .submenu-content {
+          display: flex;
+        }
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+      <div class="menu">
+      <button class="menu-button">☰</button>
+      <div class="dropdown">
+        <a href="index.html">Inici</a>
+        
+        <div class="submenu">
+          <a class="has-submenu">Botiga</a>
+          <div class="submenu-content">
+            <a href="Shop.html">Catàleg</a>
+            <a href="novetats.html">Novetats</a>
+            <a href="ofertas.html">Accesoris</a>
+          </div>
+          <a href="Sobre_nosaltres.html">Sobre nosaltres</a>
+          <a href="Contacte.html">Contacte</a>
+        </div>
+      </div>
+    </div>
+      <div>
+        <a href="Shop.html">
+          <img src="https://i.imgur.com/FDJV9Ct.png" width="200" alt="Logo">
+        </a>
+      </div>
+      <div class="icons">
+        <span class="icon favorites-icon" onclick="window.location.href='favoritos.html'">
+          <div class="header-favorite" id="headerFavorite" style="background-image: url('https://i.imgur.com/NvZb8Tu.png')"></div>
+          <span class="favorites-count">0</span>
+        </span>
+        <span class="icon cart-icon" onclick="window.location.href='cesta.html'">
+          <img src="https://i.imgur.com/bcpPSNz.png" alt="Carrito" class="cart-image">
+          <span class="cart-count">0</span>
+        </span>
+      </div>
+    </header>
+
+  <div class="alert-message" id="alertMessage"></div>
+
+  <div class="container">
+    <h1 class="page-title">La teva bossa de compra</h1>
+    
+    <div class="cart-container">
+      <div id="cart-items">
+        <!-- Los elementos del carrito se cargarán dinámicamente con JavaScript -->
+      </div>
+      
+      <div class="cart-summary">
+        <h2 class="summary-title">Resum de la comanda</h2>
+        <div class="summary-item">
+          <span>Subtotal:</span>
+          <span id="subtotal">0.00€</span>
+        </div>
+        <div class="summary-item">
+          <span>Enviament:</span>
+          <span id="shipping">0.00€</span>
+        </div>
+        <div class="summary-total">
+          <span>Total:</span>
+          <span id="total">0.00€</span>
+        </div>
+        
+        <button class="checkout-btn" onclick="proceedToCheckout()">Procedir al pagament</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // Objeto para almacenar los favoritos
+  const favorites = {};
+
+  // Función para cargar favoritos desde localStorage
+  function loadFavoritesFromStorage() {
+    const savedFavorites = localStorage.getItem('brightShopFavorites');
+    if (savedFavorites) {
+      try {
+        const parsedFavorites = JSON.parse(savedFavorites);
+        Object.keys(parsedFavorites).forEach(key => {
+          favorites[key] = parsedFavorites[key];
+        });
+        updateFavoritesCount();
+      } catch (error) {
+        console.error('Error al cargar favoritos:', error);
+      }
+    }
+  }
+
+  // Función para guardar favoritos
+  function saveFavoritesToStorage() {
+    localStorage.setItem('brightShopFavorites', JSON.stringify(favorites));
+  }
+
+  // Función para actualizar el contador de favoritos
+  function updateFavoritesCount() {
+    const count = Object.keys(favorites).length;
+    document.querySelector('.favorites-count').textContent = count;
+  }
+
+  // Función para cambiar estado de favorito
+  function toggleFavorite(name, element) {
+    if (favorites[name]) {
+      delete favorites[name];
+      element.style.backgroundImage = "url('https://i.imgur.com/wUuZsEW.png')";
+      showAlert("Producte eliminat de favorits");
+    } else {
+      favorites[name] = true;
+      element.style.backgroundImage = "url('https://i.imgur.com/NvZb8Tu.png')";
+      showAlert("Producte afegit a favorits");
+    }
+    updateFavoritesCount();
+    saveFavoritesToStorage();
+  }
+
+  // Función para ver favoritos
+  function toggleFavoritesView() {
+    window.location.href = 'favoritos.html';
+  }
+
+  // Precios de productos
+  const prices = {
+    "Show your bright": 20,
+    "A bright idea": 25,
+    "Keep griding": 22,
+    "Bright smile": 30,
+    "Gorra bright": 15,
+    "Boligraf bright": 5,
+    "Ampolla bright": 22,
+  };
+
+  // Obtener carrito desde localStorage
+  function getCart() {
+    const savedCart = localStorage.getItem('brightShopCart');
+    return savedCart ? JSON.parse(savedCart) : {};
+  }
+
+  // Guardar carrito en localStorage
+  function saveCart(cart) {
+    localStorage.setItem('brightShopCart', JSON.stringify(cart));
+    updateCartCount();
+  }
+
+  // Actualizar contador del carrito
+  function updateCartCount() {
+    const cart = getCart();
+    const count = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+    document.querySelector('.cart-count').textContent = count;
+  }
+
+  // Cambiar cantidad de un producto
+  function changeQuantity(key, change) {
+    const cart = getCart();
+    cart[key] = (cart[key] || 0) + change;
+
+    if (cart[key] <= 0) {
+      delete cart[key];
+      showAlert("Producte eliminat de la bossa");
+    }
+
+    saveCart(cart);
+    renderCartItems();
+  }
+
+  // Eliminar producto del carrito
+  function removeItem(key) {
+    const cart = getCart();
+    delete cart[key];
+    saveCart(cart);
+    renderCartItems();
+    showAlert("Producte eliminat de la bossa");
+  }
+
+  // Mostrar alerta flotante
+  function showAlert(message) {
+    let alert = document.getElementById('alertMessage');
+
+    if (!alert) {
+      alert = document.createElement('div');
+      alert.id = 'alertMessage';
+      alert.className = 'alert-message';
+      document.body.appendChild(alert);
+    }
+
+    alert.textContent = message;
+    alert.style.display = 'block';
+
+    setTimeout(() => {
+      alert.style.display = 'none';
+    }, 1000);
+  }
+
+  // Renderizar items del carrito
+  function renderCartItems() {
+    const cart = getCart();
+    const cartItemsContainer = document.getElementById('cart-items');
+
+    if (Object.keys(cart).length === 0) {
+      cartItemsContainer.innerHTML = `
+        <div class="cart-empty">
+          <p>La teva bossa està buida</p>
+          <a href="Shop.html" class="continue-Shopping">Continuar comprant</a>
+        </div>
+      `;
+      updateSummary(0);
+      return;
+    }
+
+    let cartHTML = '';
+    let subtotal = 0;
+
+    const productImages = {
+      "Show your bright": {
+        blanco: "https://i.imgur.com/QQRwHRL.png",
+        negro: "https://i.imgur.com/WPd42RN.png"
+      },
+      "A bright idea": {
+        blanco: "https://i.imgur.com/r7vubGs.png",
+        negro: "https://i.imgur.com/1xAwGGQ.png"
+      },
+      "Keep griding": {
+        blanco: "https://i.imgur.com/EzrR8gE.png",
+        negro: "https://i.imgur.com/XMbRFiX.png"
+      },
+      "Bright smile": {
+        blanco: "https://i.imgur.com/biuZH2X.png",
+        negro: "https://i.imgur.com/WOyZ6Ss.png"
+      },
+      "Gorra bright": {
+        blanco: "https://i.imgur.com/K9FODec.png",
+        negro: "https://i.imgur.com/RMdodzj.png"
+      },
+      "Boligraf bright": {
+        blanco: "https://i.imgur.com/Okg0sih.jpeg"
+      },
+      "Ampolla bright": {
+        blanco: "https://i.imgur.com/IGg106h.jpeg"
+      },
+    };
+
+    for (const [key, qty] of Object.entries(cart)) {
+      const [name, size, color] = key.split(' - ');
+      const price = prices[name] || 0;
+      const itemTotal = price * qty;
+      subtotal += itemTotal;
+
+      const traducciones = { blanc: "blanco", negre: "negro" };
+      const colorKey = traducciones[color.toLowerCase()] || color.toLowerCase();
+
+      // Obtener imagen según el producto y color
+      const imageUrl = productImages[name] && productImages[name][colorKey]
+        ? productImages[name][colorKey]
+        : "https://i.imgur.com/giNy07D.png"; // Imagen por defecto
+
+      cartHTML += `
+        <div class="cart-item" data-key="${key}">
+          <img src="${imageUrl}" alt="${name}" class="cart-item-image">
+          <div class="cart-item-details">
+            <div class="cart-item-name">${name}</div>
+            <div class="cart-item-info">
+              Color: ${color} | Talla: ${size}
+            </div>
+            <div class="cart-item-price">${price.toFixed(2)}€</div>
+          </div>
+          <div class="cart-item-controls">
+            <div class="quantity-controls">
+              <button class="quantity-btn" onclick="changeQuantity('${key}', -1)">-</button>
+              <input type="number" class="quantity-input" value="${qty}" min="1" onchange="updateQuantityInput('${key}', this.value)">
+              <button class="quantity-btn" onclick="changeQuantity('${key}', 1)">+</button>
+            </div>
+            <button class="remove-btn" onclick="removeItem('${key}')">Eliminar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    cartItemsContainer.innerHTML = cartHTML;
+    updateSummary(subtotal);
+  }
+
+  // Actualizar cantidad manualmente desde input
+  function updateQuantityInput(key, value) {
+    const quantity = parseInt(value);
+    if (isNaN(quantity) || quantity < 1) return;
+
+    const cart = getCart();
+    cart[key] = quantity;
+    saveCart(cart);
+    renderCartItems();
+  }
+
+  // Actualizar resumen del pedido
+  function updateSummary(subtotal) {
+    const shipping = subtotal > 0 ? 4.95 : 0;
+    const total = subtotal + shipping;
+
+    document.getElementById('subtotal').textContent = `${subtotal.toFixed(2)}€`;
+    document.getElementById('shipping').textContent = `${shipping.toFixed(2)}€`;
+    document.getElementById('total').textContent = `${total.toFixed(2)}€`;
+  }
+
+  // Proceder al pago
+  function proceedToCheckout() {
+    const cart = getCart();
+    if (Object.keys(cart).length === 0) {
+      showAlert("La teva bossa està buida");
+      return;
+    }
+    alert("Procesant pagament...");
+    // Aquí puedes integrar pasarela de pago real
+  }
+
+  // Inicializar página
+  document.addEventListener('DOMContentLoaded', function () {
+    updateCartCount();
+    loadFavoritesFromStorage();
+    renderCartItems();
+
+    // Menú lateral
+    const menuButton = document.querySelector('.menu-button');
+    const dropdown = document.querySelector('.dropdown');
+
+    menuButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+
+    window.addEventListener('click', (e) => {
+      if (!menuButton.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+  });
+</script>
+
+
+</body>
+</html>
