@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contacte - Bright Shop</title>
+  <link rel="icon" href="https://i.imgur.com/bhg0asr.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      background: url('https://i.imgur.com/fQg4svI.jpeg') no-repeat center center;
+      background-size: cover;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background-color: #000;
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .menu-button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh;
+      background: #222;
+      padding-top: 4rem;
+      z-index: 999;
+      flex-direction: column;
+    }
+
+    .dropdown.show {
+      display: flex;
+    }
+
+    .dropdown a {
+      color: #fff;
+      text-decoration: none;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .dropdown a:hover {
+      background: #444;
+    }
+
+    .submenu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .has-submenu {
+      padding: 1rem 2rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    .submenu-content {
+      display: none;
+      flex-direction: column;
+      background-color: #111;
+    }
+
+    .submenu-content a {
+      padding-left: 3rem;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+
+    .submenu-content a:hover {
+      background-color: #444;
+    }
+
+    .submenu:hover .submenu-content {
+      display: flex;
+    }
+
+    .icons {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding-right: 30px;
+    }
+
+    .cart-icon,
+    .favorites-icon {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    .cart-image,
+    .favorites-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: 57%;
+      left: 45%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .favorites-count {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .header-favorite {
+      width: 24px;
+      height: 24px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .cart-image {
+      filter: brightness(0) invert(1);
+      transition: transform 0.2s ease;
+    }
+
+    .cart-icon:active .cart-image {
+      transform: scale(0.95);
+    }
+
+    .form-wrapper {
+      margin-top: 10px;
+
+    }
+    /* Mostrar submenú al hacer hover sobre la sección Botiga solo en escritorio */
+    @media (min-width: 769px) {
+      .submenu-content {
+        display: flex;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Header Bright Shop -->
+  <header>
+    <div class="menu">
+      <button class="menu-button">☰</button>
+      <div class="dropdown">
+        <a href="index.html">Inici</a>
+        
+        <div class="submenu">
+          <a class="has-submenu">Botiga</a>
+          <div class="submenu-content">
+            <a href="Shop.html">Catàleg</a>
+            <a href="novetats.html">Novetats</a>
+            <a href="ofertas.html">Accesoris</a>
+          </div>
+          <a href="Sobre_nosaltres.html">Sobre nosaltres</a>
+          <a href="Contacte.html">Contacte</a>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <a href="Shop.html">
+        <img src="https://i.imgur.com/FDJV9Ct.png" width="180" alt="Logo Bright Shop">
+      </a>
+    </div>
+
+    <div class="icons">
+      <span class="icon favorites-icon" onclick="window.location.href='favoritos.html'">
+        <div class="header-favorite" id="headerFavorite" style="background-image: url('https://i.imgur.com/NvZb8Tu.png')"></div>
+        <span class="favorites-count" id="favoritesCount">0</span>
+      </span>
+
+      <span class="icon cart-icon" onclick="window.location.href='cesta.html'">
+        <img src="https://i.imgur.com/bcpPSNz.png" alt="Carrito" class="cart-image">
+        <span class="cart-count" id="cartCount">0</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- Contact Form -->
+  <div class="form-wrapper">
+    <div class="flex items-center min-h-screen pt-20" style="background: url('https://i.imgur.com/a9wOHFD.jpeg') no-repeat center center; background-size: cover;">
+      <div class="container mx-auto px-4">
+        <div class="max-w-xl mx-auto bg-white/80 p-8 rounded-lg shadow-lg">
+          <div class="text-center mb-6">
+            <h1 class="text-3xl font-semibold text-gray-700">Contacta amb nosaltres</h1>
+            <p class="text-gray-500">Emplena el formulari per enviar-nos un missatge.</p>
+          </div>
+
+          <form id="form" action="https://api.web3forms.com/submit" method="POST">
+            <input type="hidden" name="access_key" value="c7bbd60c-7900-43bd-999c-57b1cd1c1033" />
+            <input type="hidden" name="redirect" value="gracias.html" />
+            <input type="checkbox" name="botcheck" style="display: none;" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label for="fname" class="block text-sm font-medium text-gray-600 mb-1">Nom</label>
+                <input type="text" name="name" id="fname" placeholder="John" required
+                  class="w-full px-4 py-3 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all duration-300" />
+              </div>
+              <div>
+                <label for="lname" class="block text-sm font-medium text-gray-600 mb-1">Cognoms</label>
+                <input type="text" name="last_name" id="lname" placeholder="Doe" required
+                  class="w-full px-4 py-3 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all duration-300" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-600 mb-1">Correu electrònic</label>
+                <input type="email" name="email" id="email" placeholder="you@company.com" required
+                  class="w-full px-4 py-3 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all duration-300" />
+              </div>
+              <div>
+                <label for="phone" class="block text-sm font-medium text-gray-600 mb-1">Telèfon</label>
+                <input type="text" name="phone" id="phone" placeholder="+34 600 123 456" required
+                  class="w-full px-4 py-3 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all duration-300" />
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="message" class="block text-sm font-medium text-gray-600 mb-1">Missatge</label>
+              <textarea name="message" id="message" rows="5" placeholder="El teu missatge aquí..." required
+                class="w-full px-4 py-3 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all duration-300"></textarea>
+            </div>
+
+            <div>
+              <button type="submit" class="w-full text-white font-medium py-3 rounded-lg transition-all duration-300"
+                style="background-color: #333;" onmouseover="this.style.backgroundColor='#000';"
+                onmouseout="this.style.backgroundColor='#333';">
+                Enviar Missatge
+              </button>
+            </div>
+            <div id="result" class="text-gray-500 mt-4"></div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS del menú y contadores -->
+  <script>
+    const menuButton = document.querySelector('.menu-button');
+    const dropdown = document.querySelector('.dropdown');
+
+    menuButton.addEventListener('click', e => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+
+    window.addEventListener('click', e => {
+      if (!menuButton.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    function updateCartCount() {
+      const savedCart = localStorage.getItem('brightShopCart');
+      let count = 0;
+
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          count = Object.values(parsedCart).reduce((a, b) => a + b, 0);
+        } catch (err) {
+          console.error("Error leyendo carrito:", err);
+        }
+      }
+
+      document.getElementById('cartCount').textContent = count;
+    }
+
+    function updateFavoritesCount() {
+      const savedFavorites = localStorage.getItem('brightShopFavorites');
+      let count = 0;
+
+      if (savedFavorites) {
+        try {
+          const parsedFavs = JSON.parse(savedFavorites);
+          count = Object.keys(parsedFavs).length;
+        } catch (err) {
+          console.error("Error leyendo favoritos:", err);
+        }
+      }
+
+      document.getElementById('favoritesCount').textContent = count;
+    }
+
+    updateCartCount();
+    updateFavoritesCount();
+
+    // Formulario con JS para enviar y redirigir a gracias.html
+    const form = document.getElementById("form");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      var object = {};
+      formData.forEach((value, key) => {
+        object[key] = value;
+      });
+      var json = JSON.stringify(object);
+      result.innerHTML = "Please wait...";
+      result.classList.remove("text-green-500", "text-red-500");
+      result.classList.add("text-gray-500");
+
+      fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: json
+      })
+        .then(async (response) => {
+          let json = await response.json();
+          if (response.status == 200) {
+            result.innerHTML = json.message;
+            result.classList.remove("text-gray-500", "text-red-500");
+            result.classList.add("text-green-500");
+
+            // Redirigir a gracias.html
+            window.location.href = "gracias.html";
+          } else {
+            result.innerHTML = json.message;
+            result.classList.remove("text-gray-500", "text-green-500");
+            result.classList.add("text-red-500");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          result.innerHTML = "Something went wrong!";
+          result.classList.remove("text-gray-500", "text-green-500");
+          result.classList.add("text-red-500");
+        })
+        .then(() => {
+          form.reset();
+          setTimeout(() => {
+            result.style.display = "none";
+          }, 5000);
+        });
+    });
+  </script>
+</body>
+
+</html>
