@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bright Shop</title>
+  <link rel="icon" href="https://i.imgur.com/bhg0asr.png" type="image/png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.1rem;
+      background-color: #f8f9fa;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background-color: #000000;
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-family: Geneva;
+    }
+
+    .cart-icon, .favorites-icon {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    .cart-image, .favorites-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain; 
+    }
+
+    /* CONTADOR CARRITO*/
+    .cart-count{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      pointer-events: none;
+      height: 18px;
+      width: 16px;
+
+    }
+     .favorites-count {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .menu {
+      position: relative;
+    }
+    .menu-button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      position: relative;
+      z-index: 1000;
+      padding: 8px;
+    }
+    .dropdown {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh;
+      background: #222;
+      padding-top: 4rem;
+      z-index: 999;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform 0.3s ease;
+      transform: translateX(-100%);
+    }
+    .dropdown.show {
+      display: flex;
+      transform: translateX(0);
+    }
+    .dropdown a {
+      display: block;
+      color: #fff;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+    .dropdown a:hover {
+      background: #444;
+    }
+    /* Submenú embebido en el panel lateral */
+    .submenu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .has-submenu {
+      padding: 1rem 2rem;
+      text-decoration: none;
+      color: white;
+      cursor: default; /* opcional */
+    }
+
+    .submenu-content {
+      display: none;
+      flex-direction: column;
+      background-color: #111;
+    }
+
+    .submenu-content a {
+      padding-left: 3rem;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+
+    .submenu-content a:hover {
+      background-color: #444;
+    }
+
+    /* Mostrar submenú al hacer hover sobre la sección Botiga */
+    .submenu:hover .submenu-content {
+      display: flex;
+    }
+    .icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+    }
+    .icon {
+      cursor: pointer;
+      position: relative;
+    }
+    .cart-content {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 300px;
+      background: #fff;
+      color: #000;
+      padding: 1rem;
+      border-left: 1px solid #ccc;
+      overflow-y: auto;
+      z-index: 1500;
+    }
+    .cart-content.show {
+      display: block;
+    }
+    .cart-close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+      user-select: none;
+      background: transparent;
+      border: none;
+      z-index: 2000;
+    }
+    .search-container {
+      padding: 1rem;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-top: 80px;
+    }
+    .search-box {
+      display: flex;
+      max-width: 600px;
+      width: 100%;
+    }
+    .search-input {
+      flex-grow: 1;
+      padding: 0.8rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px 0 0 4px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .search-button {
+      padding: 0 1.5rem;
+      background-color: #000;
+      color: white;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .search-button:hover {
+      background-color: #333;
+    }
+    .grid-container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .item {
+      position: relative;
+      text-align: left;
+      border: 1px solid #eee;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .item img {
+      width: 100%;
+      height: auto;
+      transition: 0.3s;
+      border-radius: 0.3rem;
+    }
+    .info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.5rem;
+    }
+    .info-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .colors {
+      display: flex;
+      gap: 0.3rem;
+      margin-bottom: 0.3rem;
+    }
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    
+    /* Contenedor para nombre y corazón */
+    .name-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 0.2rem;
+    }
+    
+    .name {
+      color: #000;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    
+    .price {
+      color: #808080;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .add-button {
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.6rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      user-select: none;
+      margin-top: 0.5rem;
+      width: 100%;
+      justify-content: center;
+      background-color: #000;
+      color: white;
+      border: none;
+      font-family: 'Poppins', Arial, sans-serif;
+    }
+
+    .add-button.visible {
+      display: flex;
+    }
+
+    .add-button.added {
+      background-color: #4CAF50;
+      box-shadow: 0 0 15px 5px rgba(76, 175, 80, 0.4);
+    }
+
+    .cart-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin-bottom: 0.7rem;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 0.5rem;
+    }
+    .cart-item > div:first-child {
+      font-weight: 600;
+    }
+    .cart-controls {
+      margin-top: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .cart-controls button {
+      margin: 0 0.2rem;
+      cursor: pointer;
+      border: 1px solid #999;
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    .sizes {
+      display: flex;
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+      flex-wrap: wrap;
+    }
+    .size-button {
+      padding: 0.3rem 0.6rem;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #fff;
+      font-size: 0.8rem;
+      touch-action: manipulation;
+      transition: all 0.2s;
+    }
+    .size-button.selected {
+      background-color: #333;
+      color: #fff;
+      border-color: #333;
+    }
+    .color-dot-blanco, .color-dot-negro {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      display: inline-block;
+      margin: 0 5px;
+    }
+    .color-dot-blanco { background: white; }
+    .color-dot-negro { background: black; }
+    .color-dot-blanco.activo { border: 2px solid #000; }
+    .color-dot-negro.activo { border: 2px solid #fff; }
+
+    .alert-message {
+      display: none;
+      position: fixed;
+      top: 90px; /* Justo debajo del header */
+      left: 10px;
+      right: 10px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.9); /* Blanco semitransparente */
+      color: #000;
+      border-radius: 5px;
+      z-index: 2000;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    /* Estilos para el corazón de favoritos en productos */
+    .product-favorite {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    /* Estilos para el corazón en el header */
+    .header-favorite {
+      width: 24px;
+      height: 24px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    /* MEJORAS ESPECÍFICAS PARA EL ICONO DE LA CESTA */
+    .cart-icon {
+      /* Asegurar que sea fácil de tocar en móviles */
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .cart-image {
+      /* Mejorar visibilidad en diferentes dispositivos */
+      filter: brightness(0) invert(1); /* Hace que el icono sea blanco */
+      transition: transform 0.2s ease;
+    }
+    
+    .cart-icon:active .cart-image {
+      transform: scale(0.95); /* Feedback táctil */
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);     
+      }
+
+      header img {
+        width: 150px !important;
+      }
+
+      .dropdown {
+        width: 200px;
+      }
+    
+    .alert-message {
+        font-size: 0.95rem;
+        top: 80px; /* igual */
+      }
+    .cart-icon, .favorites-icon {
+        width: 38px;
+        height: 38px;
+      }
+    
+
+      .favorites-count {
+        font-size: 14px;
+      }
+      
+      .icons {
+        gap: 0.8rem;
+      }
+
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      header img {
+        width: 120px !important;
+      }
+
+
+    .cart-content {
+        width: 100%;
+      }
+     
+      .item {
+        padding: 0.8rem;
+      }
+
+      .name {
+        font-size: 1rem;
+      }
+
+      .size-button {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .add-button {
+        padding: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .cart-content {
+        width: 100%;
+      }
+
+      .dropdown a {
+        padding: 1rem;
+        font-size: 1.1rem;
+      }
+
+      .menu-button {
+        font-size: 1.5rem;
+      }
+
+      .search-input {
+        padding: 0.6rem 0.8rem;
+      }
+
+      .search-button {
+        padding: 0 1rem;
+      }
+      
+      .product-favorite {
+        width: 20px;
+        height: 20px;
+      }
+      
+      .header-favorite {
+        width: 20px;
+        height: 20px;
+      }
+      .alert-message {
+        font-size: 0.9rem;
+        padding: 12px;
+        top: 80px; /* igual */
+      }
+      
+      /* MEJORAS ESPECÍFICAS PARA MÓVILES */
+      .cart-icon {
+        min-width: 40px;
+        min-height: 40px;
+      }
+      
+      .cart-count {
+        font-size: 18px;
+        height: 15px;
+        width: 14px;
+      }
+      .submenu-content {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+   <div class="menu">
+      <button class="menu-button">☰</button>
+      <div class="dropdown">
+        <a href="index.html">Inici</a>
+        
+        <div class="submenu">
+          <a class="has-submenu">Botiga</a>
+          <div class="submenu-content">
+            <a href="Shop.html">Catàleg</a>
+            <a href="novetats.html">Novetats</a>
+            <a href="ofertas.html">Accesoris</a>
+          </div>
+          <a class="has-submenu">Sobre nosaltres</a>
+          <div class="submenu-content">
+            <a href="Historia.html">Història</a>
+            <a href="MVV.html">MVV</a>
+            <a href="Equip.html">Equip</a>
+          </div>
+          <a href="Contacte.html">Contacte</a>
+        </div>
+      </div>
+    </div>
+    <div>
+      <a href="Shop.html">
+        <img src="https://i.imgur.com/FDJV9Ct.png" width="200" alt="Logo">
+      </a>
+    </div>
+    <div class="icons">
+      <span class="icon favorites-icon" onclick="window.location.href='favoritos.html'">
+        <div class="header-favorite" id="headerFavorite" style="background-image: url('https://i.imgur.com/NvZb8Tu.png')"></div>
+        <span class="favorites-count">0</span>
+      </span>
+      <span class="icon cart-icon" onclick="window.location.href='cesta.html'">
+        <img src="https://i.imgur.com/bcpPSNz.png" alt="Carrito" class="cart-image">
+        <span class="cart-count">0</span>
+      </span>
+    </div>
+  </header>
+
+  <div class="alert-message" id="alertMessage"></div>
+
+  <div class="search-container">
+    <div class="search-box">
+      <input type="text" class="search-input" placeholder="Buscar productes...">
+      <button class="search-button">Cerca</button>
+    </div>
+  </div>
+
+  <div class="cart-content"></div>
+  <div class="grid-container">
+    <main class="grid" id="productGrid"></main>
+  </div>
+
+  <script>
+    // Datos de productos
+    const prices = {
+      "Gorra bright": 15,
+      "Boligraf bright": 5,
+      "Ampolla bright": 22,
+    };
+
+    const camisetas = [
+      {
+        nombre: 'Gorra bright',
+        imagenes: {
+          blanco: {
+            normal: 'https://i.imgur.com/K9FODec.png',
+            hover: 'https://i.imgur.com/WaflmxB.png'
+          },
+          negro: {
+            normal: 'https://i.imgur.com/RMdodzj.png',
+            hover: 'https://i.imgur.com/WsuwPBj.png'
+          }
+        },
+        precio: prices["Gorra bright"] + '€'
+      },
+      {
+        nombre: 'Boligraf bright',
+        imagenes: {
+          blanco: {
+            normal: 'https://i.imgur.com/Okg0sih.jpeg',
+            hover: 'https://i.imgur.com/3ssQOGQ.jpeg'
+          }
+        },
+        precio: prices["Boligraf bright"] + '€'
+      },
+      {
+        nombre: 'Ampolla bright',
+        imagenes: {
+          blanco: {
+            normal: 'https://i.imgur.com/RPqsome.jpeg',
+            hover: 'https://i.imgur.com/IGg106h.jpeg'
+          },
+        },
+        precio: prices["Ampolla bright"] + '€'
+      }
+    ];
+
+    // Carrito de compras
+    const cart = {};
+    // Favoritos
+    const favorites = {};
+
+    // Cargar carrito desde localStorage al iniciar
+    function loadCartFromStorage() {
+      const savedCart = localStorage.getItem('brightShopCart');
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          // Copiar los datos al objeto cart
+          Object.keys(parsedCart).forEach(key => {
+            cart[key] = parsedCart[key];
+          });
+          updateCartCount();
+        } catch (error) {
+          console.error('Error al carregar la bossa:', error);
+        }
+      }
+    }
+
+    // Cargar favoritos desde localStorage al iniciar
+    function loadFavoritesFromStorage() {
+      const savedFavorites = localStorage.getItem('brightShopFavorites');
+      if (savedFavorites) {
+        try {
+          const parsedFavorites = JSON.parse(savedFavorites);
+          // Copiar los datos al objeto favorites
+          Object.keys(parsedFavorites).forEach(key => {
+            favorites[key] = parsedFavorites[key];
+          });
+          updateFavoritesCount();
+        } catch (error) {
+          console.error('Error al carregar els favorits:', error);
+        }
+      }
+    }
+
+    // Guardar carrito en localStorage
+    function saveCartToStorage() {
+      try {
+        localStorage.setItem('brightShopCart', JSON.stringify(cart));
+      } catch (error) {
+        console.error('Error al guardar la bossa:', error);
+      }
+    }
+
+    // Guardar favoritos en localStorage
+    function saveFavoritesToStorage() {
+      try {
+        localStorage.setItem('brightShopFavorites', JSON.stringify(favorites));
+      } catch (error) {
+        console.error('Error al guardar favorits:', error);
+      }
+    }
+
+    // Función mejorada para añadir al carrito
+    function addToCart(name, talla, color) {
+      const itemKey = `${name} - ${talla} - ${color}`;
+      cart[itemKey] = (cart[itemKey] || 0) + 1;
+      updateCartCount();
+      renderCart();
+      saveCartToStorage();
+      showAlert("Producte afegit a la bossa");
+    }
+
+    // Función para toggle favoritos
+    function toggleFavorite(name, element) {
+      if (favorites[name]) {
+        delete favorites[name];
+        element.style.backgroundImage = "url('https://i.imgur.com/wUuZsEW.png')";
+        showAlert("Producte eliminat de favorits");
+      } else {
+        favorites[name] = true;
+        element.style.backgroundImage = "url('https://i.imgur.com/NvZb8Tu.png')";
+        showAlert("Producte afegit a favorits");
+      }
+      updateFavoritesCount();
+      saveFavoritesToStorage();
+    }
+
+    // Función para ver favoritos
+    function toggleFavoritesView() {
+      window.location.href = 'favoritos.html';
+    }
+
+    // Función mejorada para cambiar cantidad
+    function changeQty(name, change) {
+      cart[name] = (cart[name] || 0) + change;
+      if (cart[name] <= 0) delete cart[name];
+      updateCartCount();
+      renderCart();
+      saveCartToStorage();
+    }
+
+    // Función mejorada para eliminar item
+    function removeItem(name) {
+      delete cart[name];
+      updateCartCount();
+      renderCart();
+      saveCartToStorage();
+    }
+
+    function updateCartCount() {
+      const count = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+      document.querySelector('.cart-count').textContent = count;
+    }
+
+    function updateFavoritesCount() {
+      const count = Object.keys(favorites).length;
+      document.querySelector('.favorites-count').textContent = count;
+    }
+
+    function renderCart() {
+      const cartContent = document.querySelector('.cart-content');
+      cartContent.innerHTML = '';
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'cart-close-btn';
+      closeBtn.textContent = '×';
+      closeBtn.title = 'Tancar bossa';
+      closeBtn.addEventListener('click', () => {
+        cartContent.classList.remove('show');
+      });
+      cartContent.appendChild(closeBtn);
+
+      const cartTitle = document.createElement('h2');
+      cartTitle.textContent = 'La teva bossa';
+      cartContent.appendChild(cartTitle);
+
+      let total = 0;
+      for (const [name, qty] of Object.entries(cart)) {
+        const baseName = name.split(' - ')[0];
+        const priceUnit = prices[baseName] || 0;
+        const subtotal = priceUnit * qty;
+        total += subtotal;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <div>${name}</div>
+          <div class="cart-controls">
+            <button onclick="changeQty('${name}', -1)">-</button>
+            ${qty}
+            <button onclick="changeQty('${name}', 1)">+</button>
+            <button onclick="removeItem('${name}')">🗑️</button>
+          </div>
+          <div>Subtotal: ${subtotal.toFixed(2)}€</div>
+        `;
+        cartContent.appendChild(div);
+      }
+      
+      if (total > 0) {
+        const totalDiv = document.createElement('div');
+        totalDiv.style.fontWeight = 'bold';
+        totalDiv.style.marginTop = '1rem';
+        totalDiv.textContent = `Total: ${total.toFixed(2)}€`;
+        cartContent.appendChild(totalDiv);
+        
+        const checkoutBtn = document.createElement('button');
+        checkoutBtn.textContent = 'Finalitzar compra';
+        checkoutBtn.style.width = '100%';
+        checkoutBtn.style.padding = '10px';
+        checkoutBtn.style.marginTop = '1rem';
+        checkoutBtn.style.backgroundColor = '#000';
+        checkoutBtn.style.color = 'white';
+        checkoutBtn.style.border = 'none';
+        checkoutBtn.style.cursor = 'pointer';
+        checkoutBtn.onclick = function() {
+          window.location.href = 'cesta.html';
+        };
+        cartContent.appendChild(checkoutBtn);
+      } else {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.textContent = 'La teva bossa està buida';
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.padding = '2rem';
+        cartContent.appendChild(emptyMsg);
+      }
+    }
+
+    // Función para buscar productos
+    function searchProducts() {
+      const searchTerm = document.querySelector('.search-input').value.toLowerCase();
+      const items = document.querySelectorAll('.item');
+      
+      items.forEach(item => {
+        const productName = item.getAttribute('data-name').toLowerCase();
+        if (productName.includes(searchTerm)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // Mostrar alerta
+    function showAlert(message) {
+      const alert = document.getElementById('alertMessage');
+      alert.textContent = message;
+      alert.style.display = 'block';
+      
+      setTimeout(() => {
+        alert.style.display = 'none';
+      }, 1000);
+    }
+
+    // Menu desplegable
+    const menuButton = document.querySelector('.menu-button');
+    const dropdown = document.querySelector('.dropdown');
+    menuButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+    window.addEventListener('click', (e) => {
+      if (!menuButton.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    // Carrito
+    document.querySelector('.cart-icon').addEventListener('click', (e) => {
+      // Redirigir a la página de la cesta en lugar de mostrar el carrito desplegable
+      window.location.href = 'cesta.html';
+    });
+
+    // Configurar evento de búsqueda
+    document.querySelector('.search-button').addEventListener('click', searchProducts);
+    document.querySelector('.search-input').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        searchProducts();
+      }
+    });
+
+    // Obtener referencia al grid
+    const grid = document.getElementById('productGrid');
+
+    // Función para configurar los eventos hover de imagen
+    function setupImageHover(img, colorActual, camiseta) {
+      // Remover eventos anteriores
+      img.onmouseover = null;
+      img.onmouseout = null;
+      
+      // Configurar nuevos eventos
+      img.addEventListener('mouseover', function() {
+        this.src = camiseta.imagenes[colorActual].hover;
+      });
+      
+      img.addEventListener('mouseout', function() {
+        this.src = camiseta.imagenes[colorActual].normal;
+      });
+    }
+
+    // Funciones para cambiar color
+    function activarColorBlanco(button) {
+      const item = button.closest('.item');
+      const camisetaNombre = item.getAttribute('data-name');
+      const camiseta = camisetas.find(c => c.nombre === camisetaNombre);
+      
+      // Cambiar clases activas
+      item.querySelector('.color-dot-blanco').classList.add('activo');
+      item.querySelector('.color-dot-negro').classList.remove('activo');
+      
+      // Cambiar imagen y configurar hover
+      const img = item.querySelector('img');
+      img.src = camiseta.imagenes.blanco.normal;
+      setupImageHover(img, 'blanco', camiseta);
+    }
+
+    function activarColorNegro(button) {
+      const item = button.closest('.item');
+      const camisetaNombre = item.getAttribute('data-name');
+      const camiseta = camisetas.find(c => c.nombre === camisetaNombre);
+      
+      // Cambiar clases activas
+      item.querySelector('.color-dot-blanco').classList.remove('activo');
+      item.querySelector('.color-dot-negro').classList.add('activo');
+      
+      // Cambiar imagen y configurar hover
+      const img = item.querySelector('img');
+      img.src = camiseta.imagenes.negro.normal;
+      setupImageHover(img, 'negro', camiseta);
+    }
+
+    // Crear productos
+    function createProducts() {
+      grid.innerHTML = '';
+      
+      camisetas.forEach((camiseta) => {
+        const item = document.createElement('div');
+        item.className = 'item';
+        item.setAttribute('data-name', camiseta.nombre);
+
+        // Determinar la imagen inicial del corazón según si es favorito o no
+        const heartImage = favorites[camiseta.nombre] 
+          ? "url('https://i.imgur.com/NvZb8Tu.png')" 
+          : "url('https://i.imgur.com/wUuZsEW.png')";
+
+        if (camiseta.nombre === "Ampolla bright" || camiseta.nombre === "Boligraf bright") {
+          // Código especial si el nombre es "Nombre Especial"
+          item.innerHTML = `
+            <img 
+              src="${camiseta.imagenes.blanco.normal}" 
+              alt="${camiseta.nombre}">
+            <div class="info">
+              <div class="info-left">
+                <div class="colors"> 
+                  <button onclick="activarColorBlanco(this)" class="color-dot-blanco activo"></button>
+                </div>
+                <div class="name-container">
+                  <div class="name">${camiseta.nombre}</div>
+                  <div class="product-favorite" 
+                       onclick="toggleFavorite('${camiseta.nombre}', this)"
+                       style="background-image: ${heartImage}"></div>
+                </div>
+                <div class="price">${camiseta.precio}</div>
+                <a href="${camiseta.nombre.replace(/\s+/g, '_')}.html" class="add-button visible" style="text-align: center; margin-top: 10px;">Veure més...</a>
+              </div>
+            </div>
+          `;
+        } else {
+          // Código normal para las demás camisetas
+          item.innerHTML = `
+            <img 
+              src="${camiseta.imagenes.blanco.normal}" 
+              alt="${camiseta.nombre}">
+            <div class="info">
+              <div class="info-left">
+                <div class="colors"> 
+                  <button onclick="activarColorBlanco(this)" class="color-dot-blanco activo"></button>
+                  <button onclick="activarColorNegro(this)" class="color-dot-negro"></button>
+                </div>
+                <div class="name-container">
+                  <div class="name">${camiseta.nombre}</div>
+                  <div class="product-favorite" 
+                       onclick="toggleFavorite('${camiseta.nombre}', this)"
+                       style="background-image: ${heartImage}"></div>
+                </div>
+                <div class="price">${camiseta.precio}</div>
+                <a href="${camiseta.nombre.replace(/\s+/g, '_')}.html" class="add-button visible" style="text-align: center; margin-top: 10px;">Veure més...</a>
+              </div>
+            </div>
+          `;
+        }
+
+        
+        grid.appendChild(item);
+
+        // Configurar hover inicial para color blanco
+        const img = item.querySelector('img');
+        setupImageHover(img, 'blanco', camiseta);
+
+        // Event listeners para tallas
+        const sizeButtons = item.querySelectorAll('.size-button');
+        const addButton = item.querySelector('.add-button');
+
+        sizeButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            sizeButtons.forEach(b => b.classList.remove('selected'));
+            button.classList.add('selected');
+          });
+        });
+      });
+    }
+
+    // Función para añadir producto al carrito
+    function addProductToCart(button) {
+      const item = button.closest('.item');
+      const name = item.getAttribute('data-name');
+      const selectedSize = item.querySelector('.size-button.selected');
+      
+      if (!selectedSize) {
+        showAlert("Siusplau, sel·lecciona una talla");
+        return;
+      }
+      
+      const size = selectedSize.getAttribute('data-size');
+      const color = item.querySelector('.color-dot-blanco.activo') ? 'blanco' : 'negro';
+      
+      addToCart(name, size, color);
+    }
+
+    // Función para efecto visual al añadir
+    function flashAddButton(button) {
+      button.classList.add('added');
+      setTimeout(() => {
+        button.classList.remove('added');
+      }, 500);
+    }
+
+    // Hacer las funciones globales para onclick
+    window.activarColorBlanco = activarColorBlanco;
+    window.activarColorNegro = activarColorNegro;
+    window.changeQty = changeQty;
+    window.removeItem = removeItem;
+    window.addProductToCart = addProductToCart;
+    window.toggleFavorite = toggleFavorite;
+    window.toggleFavoritesView = toggleFavoritesView;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCartFromStorage();
+      loadFavoritesFromStorage();
+      createProducts();
+    });
+  </script>
+</body>
+</html>
