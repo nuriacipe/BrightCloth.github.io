@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boligraf bright - Bright Shop</title>
+  <link rel="icon" href="https://i.imgur.com/bhg0asr.png" type="image/png">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.1rem;
+      background: white;
+      color: #000;
+    }
+
+    /* ---------- HEADER ---------- */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: #000;
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .menu { position: relative; }
+    .menu-button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .dropdown {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh;
+      background: #222;
+      padding-top: 4rem;
+      z-index: 999;
+      flex-direction: column;
+      gap: 1rem;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .dropdown.show {
+      display: flex;
+      transform: translateX(0);
+    }
+
+    .dropdown a {
+      color: #fff;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+
+    .dropdown a:hover { background: #444; }
+    /* Submenú embebido en el panel lateral */
+    .submenu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .has-submenu {
+      padding: 1rem 2rem;
+      text-decoration: none;
+      color: white;
+      cursor: default; /* opcional */
+    }
+
+    .submenu-content {
+      display: none;
+      flex-direction: column;
+      background-color: #111;
+    }
+
+    .submenu-content a {
+      padding-left: 3rem;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+
+    .submenu-content a:hover {
+      background-color: #444;
+    }
+
+    /* Mostrar submenú al hacer hover sobre la sección Botiga */
+    .submenu:hover .submenu-content {
+      display: flex;
+    }
+    .icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .icon { position: relative; cursor: pointer; }
+
+    .cart-icon, .favorites-icon {
+      position: relative;
+      width: 40px;
+      height: 40px;
+    }
+
+    .cart-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-width: 100%;
+    }
+
+
+    .cart-count, .favorites-count {
+      position: absolute;
+      top: 60%;
+      left: 46%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .header-favorite {
+      width: 24px;
+      height: 24px;
+      background: url('https://i.imgur.com/NvZb8Tu.png') center/contain no-repeat;
+    }
+
+    /* ---------- ALERTA ---------- */
+     .alert-message {
+      display: none;
+      position: fixed;
+      top: 300px; /* Justo debajo del header */
+      left: 500px;
+      right: 500px;
+      padding: 15px;
+      background: rgba(255, 255, 255); /* Blanco semitransparente */
+      color: #ff1900;
+      border-radius: 5px;
+      z-index: 2000;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-size: 1rem;
+    }
+
+
+    /* ---------- PRODUCTO DETALLE ---------- */
+    .producto-detalle {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 100px 2rem 2rem;
+      gap: 2rem;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .galeria { flex: 1; min-width: 300px; }
+    .galeria img { 
+      width: 100%; 
+      border: 1px solid #ccc; 
+      border-radius: 8px; 
+      cursor: zoom-in;
+    }
+
+    .miniaturas {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .miniaturas img {
+      width: 60px; height: 60px;
+      object-fit: cover; cursor: pointer;
+      border: 1px solid #ccc; border-radius: 4px;
+      transition: border-color 0.3s;
+    }
+
+    .miniaturas img:hover, .miniaturas img.active {
+      border-color: #000; border-width: 2px;
+    }
+
+    .detalle-info { flex: 1; min-width: 300px; }
+    .detalle-info h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+    .descripcion { color: #666; margin-bottom: 1rem; line-height: 1.6; }
+    .precio { font-size: 1.5rem; margin-bottom: 1rem; font-weight: bold; }
+
+    .colores { margin-bottom: 1.5rem; }
+    .colores button {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 2px solid #ccc; margin-right: 10px;
+      cursor: pointer; transition: border-color 0.3s;
+    }
+    .colores button.activo { border-color: #000; }
+    .color-blanco { background: white; }
+    .color-negro { background: black; }
+
+    .tallas {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .tallas button {
+      padding: 0.5rem 1rem;
+      border: 1px solid #000;
+      background: white;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+    .tallas button.seleccionada { background: black; color: white; }
+
+    /* Botones acción */
+    .acciones {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .boton-añadir {
+      flex: 1;
+      padding: 1rem;
+      background: #333;
+      color: white;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    .boton-añadir:hover { background: #000; }
+
+    .boton-favorito {
+      width: 50px;
+      height: 50px;
+      background: #333 url('https://i.imgur.com/Z0Z33fw.png') center/24px no-repeat;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .boton-favorito.is-active {
+      background: #333 url('https://i.imgur.com/NvZb8Tu.png') center/24px no-repeat;
+    }
+    .boton-favorito:hover { background-color: #000; }
+
+    .volver {
+      margin-top: 2rem;
+      display: inline-block;
+      color: black;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .volver:hover { text-decoration: underline; }
+
+    /* Zoom Modal */
+    #zoomModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    .zoom-container {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+      overflow: hidden;
+    }
+
+    .zoom-imagen {
+      max-width: 100%;
+      max-height: 80vh;
+      transform-origin: center center;
+      transition: transform 0.1s ease;
+      cursor: grab;
+    }
+
+    .zoom-imagen.grabbing {
+      cursor: grabbing;
+    }
+
+    .close-zoom {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+      z-index: 3100;
+      background: rgba(0,0,0,0.5);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zoom-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 3100;
+    }
+
+    .zoom-controls button {
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    footer {
+      background-color: #000;
+      padding: 20px 0;
+      width: 100%;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .footer-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-item img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      display: inline-block;
+      margin: 0 10px;
+    }
+
+    .footer-item span {
+      font-size: 18px;
+      color: #FFFFFF;
+
+    }
+    .correo-link {
+      color: #FFF;
+      text-decoration: none;
+    }
+
+    .correo-link:hover {
+      color: #ebebeb;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 900px) {
+      header img { width: 150px !important; }
+      .dropdown { width: 200px; }
+      .cart-icon {width: 35px; height: 35px;}
+      .alert-message {
+        font-size: 0.95rem;
+        top: 80px; /* igual */
+      }
+    }
+    @media (max-width: 600px) {
+      header img { width: 120px !important; }
+      .icons { gap: 0.5rem; }
+      .producto-detalle { flex-direction: column; padding: 80px 1rem 1rem; }
+      .galeria, .detalle-info { min-width: 100%; }
+      .miniaturas { justify-content: center; }
+      .cart-icon {width: 30px; height: 30px;}
+      .alert-message {
+        font-size: 0.9rem;
+        padding: 12px;
+        top: 80px; /* igual */
+      }
+      .submenu-content {
+        display: flex;
+      }
+}
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="menu">
+      <button class="menu-button">☰</button>
+      <div class="dropdown">
+        <a href="index.html">Inici</a>
+
+        <!-- Submenú 1 -->
+        <div class="submenu">
+          <a class="has-submenu">Botiga</a>
+          <div class="submenu-content">
+            <a href="Shop.html">Catàleg</a>
+            <a href="novetats.html">Novetats</a>
+            <a href="ofertas.html">Accesoris</a>
+          </div>
+        </div>
+
+        <!-- Submenú 2 -->
+        <div class="submenu">
+          <a class="has-submenu">Sobre nosaltres</a>
+          <div class="submenu-content">
+            <a href="Historia.html">Història</a>
+            <a href="MVV.html">Missió, Visió i Valors</a>
+            <a href="Equip.html">Equip</a>
+          </div>
+        </div>
+
+        <a href="Contacte.html">Contacte</a>
+      </div>
+    </div>
+    <div>
+      <a href="index.html">
+        <img src="https://i.imgur.com/FDJV9Ct.png" width="200" alt="Logo">
+      </a>
+    </div>
+
+    <div class="icons">
+      <!-- Favoritos -->
+      <span class="icon favorites-icon" onclick="window.location.href='favoritos.html'">
+        <div class="header-favorite"></div>
+        <span class="favorites-count">0</span>
+      </span>
+      <!-- Carrito -->
+      <span class="icon cart-icon" onclick="window.location.href='cesta.html'">
+        <img src="https://i.imgur.com/bcpPSNz.png" alt="Carrito" class="cart-image">
+        <span class="cart-count">0</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- ALERTA -->
+  <div class="alert-message" id="alertMessage"></div>
+
+  <!-- DETALLE DE PRODUCTO -->
+  <div class="producto-detalle">
+    <!-- Galería -->
+    <div class="galeria">
+      <br>
+      <img id="imgPrincipal" src="https://i.imgur.com/Ud9DQz7.png" alt="Camiseta 1">
+      <div class="miniaturas" id="miniaturasContainer"></div>
+    </div>
+
+    <!-- Información -->
+    <div class="detalle-info">
+      <br>
+      <h1>Boligraf bright</h1>
+      <p class="descripcion">
+        No és només un bolígraf, és un aliat de la teva creativitat, l'eina perfecta  per anotar idees brillants o per escriure un missatge que mai oblidaràs.
+      </p>
+      <p class="precio">5 €</p>
+
+      <!-- Colores -->
+      <div class="colores">
+        <span>Color:</span>
+        <button class="color-blanco activo" onclick="seleccionarColor('blanc', this)" title="Blanc"></button>
+
+      </div>
+
+      <!-- Botones acción -->
+      <div class="acciones">
+        <button class="boton-añadir" onclick="añadirAlCarrito()">Afegir a la bossa</button>
+        <button class="boton-favorito" id="favoriteBtn" type="button"
+                aria-label="Añadir a favoritos" title="Añadir a favoritos"></button>
+      </div>
+
+      <a href="Shop.html" class="volver">← Tornar a la botiga</a>
+    </div>
+  </div>
+
+  <!-- Modal para zoom -->
+  <div id="zoomModal">
+    <span class="close-zoom" onclick="cerrarZoom()">&times;</span>
+    <div class="zoom-container">
+      <img id="zoomImagen" src="" alt="Zoom" class="zoom-imagen">
+    </div>
+    <div class="zoom-controls">
+      <button onclick="zoomOut()">-</button>
+      <button onclick="resetZoom()">⟳</button>
+      <button onclick="zoomIn()">+</button>
+    </div>
+  </div>
+
+  <footer>
+   <div class="footer-content">
+     
+     <!-- Mensaje + info -->
+     <div class="footer-item">
+       <img src="https://i.imgur.com/IPahD1Z.png" alt="Mensaje">
+       <a href="mailto:informacio.bright@gmail.com" class="correo-link">informacio.bright@gmail.com</a>
+
+       <img src="https://i.imgur.com/TEwG2BC.png" alt="Teléfono">
+       <img src="https://i.imgur.com/kYxP52y.png" alt="Instagram">
+     </div>
+
+   </div>
+ </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    /* ------------------ DATOS ------------------ */
+    const imagenesPorColor = {
+       blanc: ['https://i.imgur.com/Okg0sih.jpeg','https://i.imgur.com/3ssQOGQ.jpeg']
+     };
+
+    let colorSeleccionado = 'blanc';
+    let tallaSeleccionada = null;
+
+    /* ------------------ CARRITO ------------------ */
+    function getCart() {
+      const savedCart = localStorage.getItem('brightShopCart');
+      return savedCart ? JSON.parse(savedCart) : {};
+    }
+    function saveCart(cart) {
+      localStorage.setItem('brightShopCart', JSON.stringify(cart));
+      updateCartCount();
+    }
+    function updateCartCount() {
+      const cart = getCart();
+      const count = Object.values(cart).reduce((s,q)=>s+q,0);
+      document.querySelector('.cart-count').textContent = count;
+    }
+    function añadirAlCarrito() {
+      const nombre = "Boligraf bright";
+      const cart = getCart();
+      const key = `${nombre} - ${tallaSeleccionada} - ${colorSeleccionado}`;
+      cart[key] = (cart[key]||0)+1;
+      saveCart(cart);
+      showAlert("¡Producte afegit a la bossa!");
+    }
+
+    /* ------------------ FAVORITOS ------------------ */
+    (function() {
+      const PRODUCT_NAME = 'Boligraf bright';
+      const STORAGE_KEY = 'brightShopFavorites';
+      const btn = document.getElementById('favoriteBtn');
+      if (!btn) return;
+
+      const getFavorites = () => {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+        catch { return {}; }
+      };
+      const saveFavorites = (obj) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+        document.querySelector('.favorites-count').textContent = Object.keys(obj).length;
+      };
+      const syncButtonState = () => {
+        const favs = getFavorites();
+        const active = !!favs[PRODUCT_NAME];
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', active);
+      };
+
+      btn.addEventListener('click', () => {
+        const favs = getFavorites();
+        if (favs[PRODUCT_NAME]) {
+          delete favs[PRODUCT_NAME];
+          showAlert("Producte eliminat de favorits");
+        } else {
+          favs[PRODUCT_NAME] = true;
+          showAlert("Producte afegit a favorits");
+        }
+        saveFavorites(favs);
+        syncButtonState();
+      });
+
+      document.addEventListener('DOMContentLoaded', () => {
+        syncButtonState();
+        document.querySelector('.favorites-count').textContent = Object.keys(getFavorites()).length;
+      });
+    })();
+
+    /* ------------------ MINIATURAS ------------------ */
+    function cargarMiniaturas() {
+      const c = document.getElementById('miniaturasContainer');
+      c.innerHTML='';
+      imagenesPorColor[colorSeleccionado].forEach((img,i)=>{
+        const el=document.createElement('img');
+        el.src=img; el.alt=`Boligraf bright - ${colorSeleccionado} ${i+1}`;
+        el.onclick=()=>cambiarImagen(img,el);
+        if(i===0){ el.classList.add('active'); document.getElementById('imgPrincipal').src=img; }
+        c.appendChild(el);
+      });
+    }
+    function cambiarImagen(src, el) {
+      document.getElementById('imgPrincipal').src=src;
+      document.querySelectorAll('#miniaturasContainer img').forEach(i=>i.classList.remove('active'));
+      if(el) el.classList.add('active');
+    }
+    function seleccionarColor(color,btn) {
+      document.querySelectorAll('.colores button').forEach(b=>b.classList.remove('activo'));
+      btn.classList.add('activo'); colorSeleccionado=color; cargarMiniaturas();
+    }
+    function seleccionarTalla(btn,talla) {
+      document.querySelectorAll('.tallas button').forEach(b=>b.classList.remove('seleccionada'));
+      btn.classList.add('seleccionada'); tallaSeleccionada=talla;
+    }
+
+    /* ------------------ ALERTA ------------------ */
+    function showAlert(msg) {
+      const a=document.getElementById('alertMessage');
+      a.textContent=msg; a.style.display='block';
+      setTimeout(()=>{a.style.display='none';},1000);
+    }
+
+    /* ------------------ ZOOM FUNCTIONS ------------------ */
+    let currentScale = 1;
+    let isDragging = false;
+    let startX, startY;
+    let initialX = 0, initialY = 0;
+    let currentX = 0, currentY = 0;
+
+    function abrirZoom() {
+      const zoomModal = document.getElementById('zoomModal');
+      const zoomImagen = document.getElementById('zoomImagen');
+      
+      zoomImagen.src = document.getElementById('imgPrincipal').src;
+      zoomModal.style.display = 'flex';
+      currentScale = 1;
+      currentX = 0;
+      currentY = 0;
+      zoomImagen.style.transform = `translate(0px, 0px) scale(${currentScale})`;
+    }
+
+    function cerrarZoom() {
+      document.getElementById('zoomModal').style.display = 'none';
+    }
+
+    function zoomIn() {
+      currentScale += 0.2;
+      updateZoom();
+    }
+
+    function zoomOut() {
+      if (currentScale > 0.4) {
+        currentScale -= 0.2;
+        updateZoom();
+      }
+    }
+
+    function resetZoom() {
+      currentScale = 1;
+      currentX = 0;
+      currentY = 0;
+      updateZoom();
+    }
+
+    function updateZoom() {
+      const zoomImagen = document.getElementById('zoomImagen');
+      zoomImagen.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+    }
+
+    function initZoomEvents() {
+      const zoomImagen = document.getElementById('zoomImagen');
+      const zoomModal = document.getElementById('zoomModal');
+      
+      // Cerrar modal al hacer clic en el fondo
+      zoomModal.addEventListener('click', function(e) {
+        if (e.target === zoomModal) {
+          cerrarZoom();
+        }
+      });
+      
+      // Prevenir que el clic en la imagen cierre el modal
+      zoomImagen.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      // Zoom con rueda del mouse
+      zoomImagen.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+          zoomIn();
+        } else {
+          zoomOut();
+        }
+      });
+      
+      // Arrastrar imagen
+      zoomImagen.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        isDragging = true;
+        zoomImagen.classList.add('grabbing');
+        startX = e.clientX - currentX;
+        startY = e.clientY - currentY;
+      });
+      
+      document.addEventListener('mouseup', function() {
+        isDragging = false;
+        zoomImagen.classList.remove('grabbing');
+      });
+      
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        currentX = e.clientX - startX;
+        currentY = e.clientY - startY;
+        updateZoom();
+      });
+    }
+
+    /* ------------------ INIT ------------------ */
+    document.addEventListener('DOMContentLoaded',()=>{
+      updateCartCount(); 
+      cargarMiniaturas();
+      initZoomEvents();
+      
+      const menuButton=document.querySelector('.menu-button');
+      const dropdown=document.querySelector('.dropdown');
+      menuButton.addEventListener('click',(e)=>{ 
+        e.stopPropagation(); 
+        dropdown.classList.toggle('show'); 
+      });
+      
+      window.addEventListener('click',(e)=>{ 
+        if(!menuButton.contains(e.target)&&!dropdown.contains(e.target)) 
+          dropdown.classList.remove('show'); 
+      });
+      
+      // Evento para abrir zoom
+      document.getElementById('imgPrincipal').addEventListener('click', abrirZoom);
+    });
+  </script>
+</body>
+</html>
