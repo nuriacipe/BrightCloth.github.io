@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favoritos - Bright Shop</title>
+  <link rel="icon" href="https://i.imgur.com/bhg0asr.png" type="image/png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.1rem;
+      /*background-image: url('https://i.imgur.com/fhtkwFP.png');*/
+      color: #000;
+      padding-top: 80px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background-color: #000000;
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-family: Geneva;
+    }
+
+    .cart-icon, .favorites-icon {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    .cart-image, .favorites-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain; /* Mantiene la proporción sin deformar */
+    }
+
+    /* CONTADOR MODIFICADO - Número blanco centrado */
+    .cart-count{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      pointer-events: none;
+      height: 18px;
+      width: 16px;
+
+    }
+     .favorites-count {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .menu { position: relative; }
+    .menu-button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .dropdown {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh;
+      background: #222;
+      padding-top: 4rem;
+      z-index: 999;
+      flex-direction: column;
+      gap: 1rem;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .dropdown.show {
+      display: flex;
+      transform: translateX(0);
+    }
+
+    .dropdown a {
+      color: #fff;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+
+    .dropdown a:hover { background: #444; }
+    /* Submenú embebido en el panel lateral */
+    .submenu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .has-submenu {
+      padding: 1rem 2rem;
+      text-decoration: none;
+      color: white;
+      cursor: default; /* opcional */
+    }
+
+    .submenu-content {
+      display: none;
+      flex-direction: column;
+      background-color: #111;
+    }
+
+    .submenu-content a {
+      padding-left: 3rem;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+    }
+
+    .submenu-content a:hover {
+      background-color: #444;
+    }
+
+    /* Mostrar submenú al hacer hover sobre la sección Botiga */
+    .submenu:hover .submenu-content {
+      display: flex;
+    }
+    .icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+    }
+    .icon {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      background-color: rgba(255, 255, 255, 0.7); /* blanco con 70% de opacidad */
+      padding: 10px; /* opcional, para que el fondo se vea mejor */
+      border-radius: 8px; /* opcional, para esquinas redondeadas */
+    }
+
+
+    .favorites-container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .favorites-empty {
+      text-align: center;
+      padding: 40px 0;
+      color: #666;
+    }
+
+    .favorites-empty p {
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+
+    .continue-Shopping {
+      display: inline-block;
+      background: #000;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    .continue-Shopping:hover {
+      background: #333;
+    }
+
+    .favorite-item {
+      display: flex;
+      border-bottom: 1px solid #eee;
+      padding: 20px 0;
+      align-items: center;
+      position: relative;
+    }
+
+    .favorite-item-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      margin-right: 20px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+    }
+
+    .favorite-item-details {
+      flex-grow: 1;
+    }
+
+    .favorite-item-name {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+
+    .favorite-item-price {
+      color: #e53935;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .favorite-item-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .add-to-cart-btn {
+      background: #000;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .add-to-cart-btn:hover {
+      background: #333;
+    }
+
+    .remove-favorite {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .remove-favorite:hover {
+      background: #cc0000;
+    }
+
+    .view-product {
+      color: #000;
+      text-decoration: none;
+      font-size: 0.9rem;
+      border: 1px solid #000;
+      padding: 7px 14px;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    .view-product:hover {
+      background: #000;
+      color: white;
+    }
+
+    .alert-message {
+      display: none;
+      position: fixed;
+      top: 250px; /* Justo debajo del header */
+      left: 500px;
+      right: 500px;
+      padding: 15px;
+      background: rgba(255, 255, 255); /* Blanco semitransparente */
+      color: #ff1900;
+      border-radius: 5px;
+      z-index: 2000;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .volver {
+      margin-top: 2rem;
+      display: block;
+      margin-left: auto;
+      color: black;
+      text-decoration: none;
+      font-weight: 500;
+      background-color: rgba(255, 255, 255, 0.7); /* blanco con 70% de opacidad */
+      padding: 10px; /* opcional, para que el fondo se vea mejor */
+      border-radius: 8px; /* opcional, para esquinas redondeadas */
+    }
+
+    .volver:hover { color: #696969 }
+    footer {
+      background-color: #000;
+      padding: 20px 0;
+      width: 100%;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .footer-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-item img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      display: inline-block;
+      margin: 0 10px;
+    }
+
+    .footer-item span {
+      font-size: 18px;
+      color: #FFFFFF;
+
+    }
+    .correo-link {
+      color: #FFF;
+      text-decoration: none;
+    }
+
+    .correo-link:hover {
+      color: #ebebeb;
+    }
+
+
+    @media (max-width: 900px) {
+  header img {
+    width: 150px !important;
+  }
+
+  .dropdown {
+    width: 200px;
+  }
+
+  .alert-message {
+    font-size: 0.95rem;
+    top: 80px;
+  }
+
+  /* Solo tocamos el carrito */
+  .cart-icon {
+    position: relative;
+    width: auto;
+    height: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-icon img {
+    max-width: 40px;
+    max-height: 40px;
+    display: block;
+  }
+
+  .cart-count{
+    font-size: 18px;
+    width: 14px; 
+    height: 15px;
+  }
+
+}
+
+@media (max-width: 600px) {
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+  }
+
+  header img {
+    width: 120px !important;
+  }
+
+  .cart-icon {
+    position: relative;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cart-count {
+    font-size: 18px;
+    height: 15px;
+    width: 14px;
+  }
+
+  .favorites-count {
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 15px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .favorites-container {
+    padding: 15px;
+  }
+
+  /* Estilo para los items favoritos */
+  .favorite-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .favorite-item-top {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .favorite-item-image {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+  }
+
+  .favorite-item-details {
+    flex-grow: 1;
+  }
+
+  .favorite-item-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .add-to-cart-btn,
+  .remove-favorite,
+  .view-product {
+    flex: 1;
+    text-align: center;
+    width: auto;
+  }
+
+  .alert-message {
+    font-size: 0.9rem;
+    padding: 12px;
+    top: 80px;
+  }
+  .submenu-content {
+        display: flex;
+      }
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="menu">
+      <button class="menu-button">☰</button>
+      <div class="dropdown">
+        <a href="index.html">Inici</a>
+
+        <!-- Submenú 1 -->
+        <div class="submenu">
+          <a class="has-submenu">Botiga</a>
+          <div class="submenu-content">
+            <a href="Shop.html">Catàleg</a>
+            <a href="novetats.html">Novetats</a>
+            <a href="ofertas.html">Ofertes</a>
+            <a href="carrusel.html">Galeria</a>
+          </div>
+        </div>
+
+        <!-- Submenú 2 -->
+        <div class="submenu">
+          <a class="has-submenu">Sobre nosaltres</a>
+          <div class="submenu-content">
+            <a href="Historia.html">Història</a>
+            <a href="MVV.html">Missió, Visió i Valors</a>
+            <a href="Equip.html">Equip</a>
+          </div>
+        </div>
+
+        <a href="Contacte.html">Contacte</a>
+      </div>
+    </div>
+    
+    <div>
+      <a href="index.html">
+        <img src="https://i.imgur.com/FDJV9Ct.png" width="200" alt="Logo">
+      </a>
+    </div>
+    <div class="icons">
+      <span class="icon favorites-icon" onclick="window.location.href='favoritos.html'">
+        <div class="header-favorite" style="background-image: url('https://i.imgur.com/NvZb8Tu.png'); width: 24px; height: 24px; background-size: contain; background-repeat: no-repeat;"></div>
+        <span class="favorites-count">0</span>
+      </span>
+      <span class="icon cart-icon" onclick="window.location.href='cesta.html'">
+        <img src="https://i.imgur.com/bcpPSNz.png" alt="Carrito" class="cart-image">
+        <span class="cart-count">0</span>
+      </span>
+    </div>
+  </header>
+
+  <div class="alert-message" id="alertMessage"></div>
+
+  <div class="container">
+    <h1 class="page-title">Els teus productes favorits</h1>
+    
+    <div class="favorites-container">
+      <div id="favorites-items">
+        <!-- Los elementos favoritos se cargarán dinámicamente con JavaScript -->
+      </div>
+    </div>
+
+    <div style="text-align: right;">
+      <a href="Shop.html" class="volver">← Tornar a la botiga</a>
+    </div>
+
+  </div>
+
+  <footer>
+   <div class="footer-content">
+     
+     <!-- Mensaje + info -->
+     <div class="footer-item">
+       <img src="https://i.imgur.com/IPahD1Z.png" alt="Mensaje">
+       <a href="mailto:informacio.bright@gmail.com" class="correo-link">informacio.bright@gmail.com</a>
+
+       <img src="https://i.imgur.com/TEwG2BC.png" alt="Teléfono">
+       <img src="https://i.imgur.com/kYxP52y.png" alt="Instagram">
+     </div>
+
+   </div>
+ </footer>
+  
+<script>
+  // Precios de productos
+  const prices = {
+    "Show your bright": 20,
+    "A bright idea": 25,
+    "Keep grinding": 22,
+    "Bright smile": 30,
+    "Gorra bright": 15,
+    "Boligraf bright": 5,
+    "Ampolla bright": 22,
+    "Pack 3 + exclusiva": 62,
+  };
+
+  // Imágenes por defecto para cada producto
+  const productImages = {
+    "Show your bright": {
+      blanco: "https://i.imgur.com/QQRwHRL.png",
+      negro: "https://i.imgur.com/WPd42RN.png"
+    },
+    "A bright idea": {
+      blanco: "https://i.imgur.com/r7vubGs.png",
+      negro: "https://i.imgur.com/1xAwGGQ.png"
+    },
+    "Keep grinding": {
+      blanco: "https://i.imgur.com/EzrR8gE.png",
+      negro: "https://i.imgur.com/XMbRFiX.png"
+    },
+    "Bright smile": {
+      blanco: "https://i.imgur.com/biuZH2X.png",
+      negro: "https://i.imgur.com/WOyZ6Ss.png"
+    },
+    "Gorra bright": {
+      blanco: "https://i.imgur.com/K9FODec.png",
+      negro: "https://i.imgur.com/RMdodzj.png"
+    },
+    "Boligraf bright": {
+      blanco: "https://i.imgur.com/Okg0sih.jpeg"
+    },
+    "Ampolla bright": {
+      blanco: "https://i.imgur.com/IGg106h.jpeg"
+    },
+    "Pack 3 + exclusiva": {
+      blanco: "https://i.imgur.com/JYpWjqz.jpeg"
+    },
+  };
+
+  // Obtener favoritos desde localStorage
+  function getFavorites() {
+    const savedFavorites = localStorage.getItem('brightShopFavorites');
+    return savedFavorites ? JSON.parse(savedFavorites) : {};
+  }
+
+  // Obtener carrito desde localStorage
+  function getCart() {
+    const savedCart = localStorage.getItem('brightShopCart');
+    return savedCart ? JSON.parse(savedCart) : {};
+  }
+
+  // Guardar carrito en localStorage
+  function saveCart(cart) {
+    localStorage.setItem('brightShopCart', JSON.stringify(cart));
+    updateCartCount();
+  }
+
+  // Guardar favoritos en localStorage
+  function saveFavorites(favorites) {
+    localStorage.setItem('brightShopFavorites', JSON.stringify(favorites));
+    updateFavoritesCount();
+  }
+
+  // Actualizar contador del carrito
+  function updateCartCount() {
+    const cart = getCart();
+    const count = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+    document.querySelector('.cart-count').textContent = count;
+  }
+
+  // Actualizar contador de favoritos
+  function updateFavoritesCount() {
+    const favorites = getFavorites();
+    const count = Object.keys(favorites).length;
+    document.querySelector('.favorites-count').textContent = count;
+  }
+
+  // Mostrar alerta
+  function showAlert(message) {
+    const alert = document.getElementById('alertMessage');
+    alert.textContent = message;
+    alert.style.display = 'block';
+
+    setTimeout(() => {
+      alert.style.display = 'none';
+    }, 3000);
+  }
+
+  // Añadir producto al carrito
+  function addToCart(name, talla = 'M', color = 'blanco') {
+    const cart = getCart();
+    const itemKey = `${name} - ${talla} - ${color}`;
+    cart[itemKey] = (cart[itemKey] || 0) + 1;
+    saveCart(cart);
+    showAlert("Producte afegit a la bossa");
+  }
+
+  // Eliminar producto de favoritos
+  function removeFromFavorites(name) {
+    const favorites = getFavorites();
+    delete favorites[name];
+    saveFavorites(favorites);
+    renderFavoritesItems();
+    showAlert("Producte eliminat de favorits");
+  }
+
+  // Renderizar items favoritos
+  function renderFavoritesItems() {
+    const favorites = getFavorites();
+    const favoritesContainer = document.getElementById('favorites-items');
+
+    if (Object.keys(favorites).length === 0) {
+      favoritesContainer.innerHTML = `
+        <div class="favorites-empty">
+          <p>No tens productes favorits</p>
+          <a href="Shop.html" class="continue-Shopping">Descubrir productes</a>
+        </div>
+      `;
+      return;
+    }
+
+    let favoritesHTML = '';
+
+    for (const name of Object.keys(favorites)) {
+      const price = prices[name] || 0;
+      const image = (productImages[name] && productImages[name]['blanco']) || 'https://i.imgur.com/giNy07D.png';
+
+      // Slug limpio y sin acentos
+      const productSlug = name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "_") + '.html';
+
+      favoritesHTML += `
+        <div class="favorite-item" data-name="${name}">
+          <div class="favorite-item-top">
+            <img src="${image}" alt="${name}" class="favorite-item-image">
+            <div class="favorite-item-details">
+              <div class="favorite-item-name">${name}</div>
+              <div class="favorite-item-price">${price.toFixed(2)} €</div>
+            </div>
+          </div>
+          <div class="favorite-item-actions">
+            <button class="add-to-cart-btn" onclick="addToCart('${name}')">Afegir a la bossa</button>
+            <a href="${productSlug}" class="view-product">Veure producte</a>
+            <button class="remove-favorite" onclick="removeFromFavorites('${name}')">Eliminar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    favoritesContainer.innerHTML = favoritesHTML;
+  }
+
+  // Inicializar página
+  document.addEventListener('DOMContentLoaded', function () {
+    updateCartCount();
+    updateFavoritesCount();
+    renderFavoritesItems();
+
+    // Menú desplegable lateral
+    const menuButton = document.querySelector('.menu-button');
+    const dropdown = document.querySelector('.dropdown');
+
+    menuButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+
+    window.addEventListener('click', (e) => {
+      if (!menuButton.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+  });
+</script>
+
+
+</body>
+</html>
